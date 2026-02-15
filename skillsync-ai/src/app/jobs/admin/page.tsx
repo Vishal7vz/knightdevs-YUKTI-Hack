@@ -26,7 +26,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const token = getJobPortalToken();
     if (!token) {
-      router.push("/jobs/login?redirect=/jobs/admin");
+      router.push("/jobs");
       return;
     }
     jobsFetch("/api/jobs/admin/stats")
@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
       })
       .catch((err) => {
         setError(err.message ?? "Failed to load");
-        if (err.message?.includes("403")) router.push("/jobs/dashboard");
+        if (err.message?.includes("403")) router.push("/jobs");
       })
       .finally(() => setLoading(false));
   }, [router]);
@@ -64,8 +64,8 @@ export default function AdminDashboardPage() {
     return (
       <div className="relative mx-auto max-w-4xl px-4 py-12">
         <p className="text-rose-700">{error}</p>
-        <Link href="/jobs/dashboard" className="mt-4 inline-block font-medium text-violet-700 hover:underline">
-          ← Dashboard
+        <Link href="/jobs" className="mt-4 inline-block font-medium text-violet-700 hover:underline">
+          ← Jobs
         </Link>
       </div>
     );
@@ -76,8 +76,8 @@ export default function AdminDashboardPage() {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-black">Admin Dashboard</h1>
         <div className="flex gap-2">
-          <Link href="/jobs/dashboard" className={glassBtn}>
-            User dashboard
+          <Link href="/jobs" className={glassBtn}>
+            Jobs
           </Link>
           <button onClick={handleLogout} className={glassBtn}>
             Log out

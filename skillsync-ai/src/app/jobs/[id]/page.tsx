@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { jobsFetch, getJobPortalToken } from "@/lib/jobs-api";
 import type { IndianJob } from "@/types/jobs";
 
 export default function JobDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
   const [job, setJob] = useState<IndianJob | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [applying, setApplying] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const isLoggedIn = typeof window !== "undefined" && !!getJobPortalToken();
 
   useEffect(() => {
     let cancelled = false;
@@ -35,67 +30,6 @@ export default function JobDetailPage() {
       cancelled = true;
     };
   }, [id]);
-
-  useEffect(() => {
-    if (!isLoggedIn || !id) return;
-    jobsFetch("/api/jobs/saved")
-      .then((r) => r.json())
-      .then((d) => setSaved((d.savedJobIds ?? []).includes(id)))
-      .catch(() => {});
-  }, [id, isLoggedIn]);
-
-  const handleApply = async () => {
-    if (!isLoggedIn) {
-      router.push("/jobs/login?redirect=/jobs/" + id);
-      return;
-    }
-    setApplying(true);
-    try {
-      const res = await jobsFetch("/api/jobs/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId: id,
-          jobSnapshot: job
-            ? {
-                title: job.title,
-                company: job.company,
-                location: job.location,
-              }
-            : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Apply failed");
-      router.push("/jobs/dashboard");
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to apply");
-    } finally {
-      setApplying(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!isLoggedIn) {
-      router.push("/jobs/login?redirect=/jobs/" + id);
-      return;
-    }
-    try {
-      if (saved) {
-        await jobsFetch(`/api/jobs/saved?jobId=${id}`, { method: "DELETE" });
-        setSaved(false);
-      } else {
-        await jobsFetch("/api/jobs/saved", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jobId: id }),
-        });
-        setSaved(true);
-      }
-    } catch {
-      // ignore
-    }
-  };
 
   if (loading) {
     return (
@@ -119,8 +53,6 @@ export default function JobDetailPage() {
 
   const glass =
     "rounded-2xl border border-white/40 bg-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-2xl";
-  const glassButton =
-    "rounded-xl border border-white/40 bg-white/25 px-6 py-3 font-medium text-black shadow-[0_4px_16px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-2xl transition hover:bg-white/40";
 
   return (
     <div className="relative mx-auto max-w-3xl px-4 py-8">
@@ -185,24 +117,12 @@ export default function JobDetailPage() {
           </div>
         )}
         <div className="mt-8 flex flex-wrap gap-3">
-          <button
-            onClick={handleApply}
-            disabled={applying}
-            className="rounded-xl bg-violet-600 px-6 py-3 font-medium text-white shadow-lg transition hover:bg-violet-700 disabled:opacity-50"
-          >
-            {applying ? "Applying…" : "Apply now"}
-          </button>
-          {isLoggedIn && (
-            <button onClick={handleSave} className={glassButton}>
-              {saved ? "Saved" : "Save job"}
-            </button>
-          )}
           {job.apply_link && (
             <a
               href={job.apply_link}
               target="_blank"
               rel="noopener noreferrer"
-              className={glassButton}
+              className="rounded-xl bg-violet-600 px-6 py-3 font-medium text-white shadow-lg transition hover:bg-violet-700"
             >
               Apply on company site →
             </a>

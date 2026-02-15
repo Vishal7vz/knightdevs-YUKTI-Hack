@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { JobCard } from "@/components/jobs/JobCard";
 import type { IndianJob } from "@/types/jobs";
 
@@ -50,26 +49,6 @@ export default function JobsSearchPage() {
           <p className="mt-1 text-sm text-black/70">
             Search jobs by title, location, or skills
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/jobs/login"
-            className="rounded-xl border border-white/40 bg-white/25 px-4 py-2 text-sm font-medium text-black shadow-[0_4px_16px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-2xl transition hover:bg-white/40"
-          >
-            Login
-          </Link>
-          <Link
-            href="/jobs/register"
-            className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition hover:bg-violet-700"
-          >
-            Sign up
-          </Link>
-          <Link
-            href="/jobs/dashboard"
-            className="rounded-xl border border-white/40 bg-white/25 px-4 py-2 text-sm font-medium text-black shadow-[0_4px_16px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-2xl transition hover:bg-white/40"
-          >
-            Dashboard
-          </Link>
         </div>
       </header>
 

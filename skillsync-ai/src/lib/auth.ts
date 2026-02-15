@@ -1,11 +1,11 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { JwtPayload } from "@/types/jobs";
+import bcrypt from "bcryptjs";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "job-portal-secret-change-in-production";
 const secret = new TextEncoder().encode(JWT_SECRET);
 
 export async function hashPassword(password: string): Promise<string> {
-  const { bcrypt } = await import("bcryptjs");
   return bcrypt.hash(password, 10);
 }
 
@@ -13,7 +13,6 @@ export async function verifyPassword(
   password: string,
   hashed: string
 ): Promise<boolean> {
-  const { bcrypt } = await import("bcryptjs");
   return bcrypt.compare(password, hashed);
 }
 

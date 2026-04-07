@@ -22,7 +22,7 @@ export const runtime = "nodejs";
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   const token = getAuthFromRequest(req);
   const payload = token ? await verifyToken(token) : null;
@@ -31,7 +31,7 @@ export async function POST(
   }
 
   try {
-    const { projectId } = params;
+    const { projectId } = await params;
     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }

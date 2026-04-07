@@ -20,7 +20,7 @@ export const runtime = "nodejs";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   const token = getAuthFromRequest(req);
   const payload = token ? await verifyToken(token) : null;
@@ -29,7 +29,7 @@ export async function GET(
   }
 
   try {
-    const { projectId } = params;
+    const { projectId } = await params;
     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
@@ -74,7 +74,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   const token = getAuthFromRequest(req);
   const payload = token ? await verifyToken(token) : null;
@@ -83,7 +83,7 @@ export async function PUT(
   }
 
   try {
-    const { projectId } = params;
+    const { projectId } = await params;
     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
@@ -162,7 +162,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   const token = getAuthFromRequest(req);
   const payload = token ? await verifyToken(token) : null;
@@ -171,7 +171,7 @@ export async function DELETE(
   }
 
   try {
-    const { projectId } = params;
+    const { projectId } = await params;
     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }

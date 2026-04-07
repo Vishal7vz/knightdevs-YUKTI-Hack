@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "node -e \"try{require('fs').rmSync('.next/dev',{recursive:true,force:true})}catch(e){}\" && next dev",
     "dev:fresh": "node -e \"try{require('fs').rmSync('.next/dev',{recursive:true,force:true})}catch(e){}\" && next dev",
-    "ats-backend": "npm start --prefix ../backend",
-    "build": "next build",
+    "ats-backend": "npm start --prefix ../../backend",
+    "build": "npm install --workspaces=false --prefix ./resume-builder && npm run build:embed && next build",
     "start": "next start",
     "lint": "next lint",
     "dev:resume": "npm --prefix ./resume-builder run dev",
@@ -16,7 +16,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

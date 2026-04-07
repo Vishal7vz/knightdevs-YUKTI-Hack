@@ -17,7 +17,9 @@ export const runtime = "nodejs";
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { projectId: string; proofIndex: string } }
+  {
+    params,
+  }: { params: Promise<{ projectId: string; proofIndex: string }> }
 ) {
   const token = getAuthFromRequest(req);
   const payload = token ? await verifyToken(token) : null;
@@ -26,7 +28,7 @@ export async function DELETE(
   }
 
   try {
-    const { projectId, proofIndex } = params;
+    const { projectId, proofIndex } = await params;
     if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }

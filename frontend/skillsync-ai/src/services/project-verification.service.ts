@@ -3,14 +3,23 @@
  * Handles verification status calculation and validation
  */
 
-import { IProject, VerificationStatus, IProofLink } from "@/types/project";
+import {
+  IProject,
+  VerificationStatus,
+  IProofLink,
+} from "@/types/project";
+
+/** Partial project as stored in Mongo (may include ObjectId-style `_id`) */
+export type ProjectVerifyInput = Omit<Partial<IProject>, "_id"> & {
+  _id?: string | { toString(): string };
+};
 
 /**
  * Check project verification status based on proof links
  * @param project - Project object (can be partial, will return updated verificationStatus)
  * @returns VerificationStatus ("Verified" or "No Proof Attached")
  */
-export function checkProjectVerification(project: Partial<IProject>): VerificationStatus {
+export function checkProjectVerification(project: ProjectVerifyInput): VerificationStatus {
   if (project.proofLinks && Array.isArray(project.proofLinks) && project.proofLinks.length > 0) {
     // Check if at least one proof link has a valid URL
     const hasValidLink = project.proofLinks.some(
@@ -78,9 +87,12 @@ export function isGitHubLink(url: string): boolean {
  * @param project - Project object to update
  * @returns Updated project with verificationStatus set
  */
-export function updateProjectVerification(project: Partial<IProject>): Partial<IProject> {
+export function updateProjectVerification(
+  project: ProjectVerifyInput
+): Partial<IProject> {
   const verificationStatus = checkProjectVerification(project);
-  const updated = { ...project, verificationStatus };
+  const { _id: _mongoId, ...rest } = project;
+  const updated: Partial<IProject> = { ...rest, verificationStatus };
 
   // Auto-verify GitHub links if applicable
   if (

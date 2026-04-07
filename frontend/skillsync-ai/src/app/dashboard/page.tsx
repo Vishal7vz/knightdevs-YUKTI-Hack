@@ -96,9 +96,13 @@ function DashboardContent() {
 
       setLearningResources(data.resources ?? []);
       setIsLoadingLearning(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsLoadingLearning(false);
-      setLearningError(error.message || "Something went wrong while loading resources.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while loading resources.";
+      setLearningError(message);
     }
   };
 

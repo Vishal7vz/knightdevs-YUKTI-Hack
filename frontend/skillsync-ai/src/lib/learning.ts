@@ -107,7 +107,9 @@ JSON format:
       throw new Error("OpenRouter request failed");
     }
 
-    const data = (await res.json()) as any;
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string | null } }>;
+    };
     raw = data.choices?.[0]?.message?.content ?? null;
   } else if (openaiKey) {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -126,7 +128,9 @@ JSON format:
       throw new Error("OpenAI request failed");
     }
 
-    const data = (await res.json()) as any;
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string | null } }>;
+    };
     raw = data.choices?.[0]?.message?.content ?? null;
   }
 

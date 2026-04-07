@@ -9,6 +9,7 @@ import { getAuthFromRequest, verifyToken } from "@/lib/auth";
 import { User } from "@/models/User";
 import { updateProjectVerification } from "@/services/project-verification.service";
 import mongoose from "mongoose";
+import type { UserProjectLean } from "@/types/project";
 
 export const runtime = "nodejs";
 
@@ -46,14 +47,16 @@ export async function DELETE(
     }
 
     const projectIndex = (user.projects || []).findIndex(
-      (p: any) => p._id?.toString() === projectId
+      (p: UserProjectLean) => p._id?.toString() === projectId
     );
 
     if (projectIndex === -1) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const existingProject = user.projects?.[projectIndex] as any;
+    const existingProject = user.projects?.[
+      projectIndex
+    ] as UserProjectLean;
     const existingProofLinks = existingProject.proofLinks || [];
 
     if (index >= existingProofLinks.length) {
@@ -65,7 +68,7 @@ export async function DELETE(
 
     // Remove proof link
     const updatedProofLinks = existingProofLinks.filter(
-      (_: any, i: number) => i !== index
+      (_: unknown, i: number) => i !== index
     );
 
     // Recalculate verification
@@ -89,7 +92,9 @@ export async function DELETE(
 
     // Fetch updated project
     const updated = await User.findById(payload.userId).select("projects").lean();
-    const savedProject = updated?.projects?.[projectIndex] as any;
+    const savedProject = updated?.projects?.[projectIndex] as
+      | UserProjectLean
+      | undefined;
 
     return NextResponse.json({
       project: {

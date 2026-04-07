@@ -121,11 +121,15 @@ export default function UploadPage() {
       }).toString();
 
       router.push(`/dashboard?${searchParams}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setIsParsing(false);
       setIsAnalyzing(false);
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
+      );
     }
   };
 

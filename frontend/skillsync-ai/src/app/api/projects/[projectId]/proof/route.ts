@@ -7,7 +7,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { getAuthFromRequest, verifyToken } from "@/lib/auth";
 import { User } from "@/models/User";
-import { IProofLink, ProofLinkType } from "@/types/project";
+import {
+  IProofLink,
+  ProofLinkType,
+  type UserProjectLean,
+} from "@/types/project";
 import {
   isValidUrl,
   isDuplicateProofLink,
@@ -77,14 +81,16 @@ export async function POST(
     }
 
     const projectIndex = (user.projects || []).findIndex(
-      (p: any) => p._id?.toString() === projectId
+      (p: UserProjectLean) => p._id?.toString() === projectId
     );
 
     if (projectIndex === -1) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const existingProject = user.projects?.[projectIndex] as any;
+    const existingProject = user.projects?.[
+      projectIndex
+    ] as UserProjectLean;
     const existingProofLinks = existingProject.proofLinks || [];
 
     // Check for duplicates
@@ -116,7 +122,9 @@ export async function POST(
 
     // Fetch updated project
     const updated = await User.findById(payload.userId).select("projects").lean();
-    const savedProject = updated?.projects?.[projectIndex] as any;
+    const savedProject = updated?.projects?.[projectIndex] as
+      | UserProjectLean
+      | undefined;
 
     return NextResponse.json(
       {

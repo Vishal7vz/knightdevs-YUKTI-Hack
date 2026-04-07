@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { getAuthFromRequest, verifyToken } from "@/lib/auth";
 import { User } from "@/models/User";
-import { IProject } from "@/types/project";
+import { IProject, type UserProjectLean } from "@/types/project";
 import { updateProjectVerification } from "@/services/project-verification.service";
 
 export const runtime = "nodejs";
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const projects = (user.projects || []).map((p: any) => ({
+    const projects = (user.projects || []).map((p: UserProjectLean) => ({
       _id: p._id?.toString(),
       title: p.title,
       description: p.description,

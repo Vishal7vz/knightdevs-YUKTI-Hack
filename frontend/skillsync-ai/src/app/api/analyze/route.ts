@@ -79,11 +79,12 @@ export async function POST(req: NextRequest) {
       ats: { score: ats.score, notes: ats.notes },
       demand,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("/api/analyze error", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to analyze resume. Please try again." },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to analyze resume. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

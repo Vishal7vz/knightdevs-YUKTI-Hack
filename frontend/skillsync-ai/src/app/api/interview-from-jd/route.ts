@@ -86,16 +86,13 @@ ${jobDescription.slice(0, 15000)}
     }
 
     const obj = parsed as Partial<InterviewQuestionsResponse>;
+    const isInterviewQuestion = (q: unknown): q is InterviewQuestion => {
+      if (typeof q !== "object" || q === null) return false;
+      const question = (q as { question?: unknown }).question;
+      return typeof question === "string" && question.trim().length > 0;
+    };
     const questions = Array.isArray(obj.questions)
-      ? obj.questions
-          .filter(
-            (q): q is InterviewQuestion =>
-              !!q &&
-              typeof q === "object" &&
-              typeof (q as any).question === "string" &&
-              (q as any).question.trim().length > 0
-          )
-          .slice(0, 20)
+      ? obj.questions.filter(isInterviewQuestion).slice(0, 20)
       : [];
 
     if (!questions.length) {

@@ -1,28 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { ResumeAnalyzerResponse } from "@/types/resume-analyzer";
 
 const STORAGE_KEY = "resume-analyzer-result";
 
-export default function AnalyzeResultPage() {
-  const [data, setData] = useState<ResumeAnalyzerResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+type ResultSnapshot =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ok"; data: ResumeAnalyzerResponse };
 
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        setError("No results found. Please run an analysis first.");
-        return;
-      }
-      const parsed = JSON.parse(raw) as ResumeAnalyzerResponse;
-      setData(parsed);
-    } catch {
-      setError("Invalid result data.");
+function readResultSnapshot(): ResultSnapshot {
+  if (typeof window === "undefined") {
+    return { status: "loading" };
+  }
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return {
+        status: "error",
+        message: "No results found. Please run an analysis first.",
+      };
     }
-  }, []);
+    const parsed = JSON.parse(raw) as ResumeAnalyzerResponse;
+    return { status: "ok", data: parsed };
+  } catch {
+    return { status: "error", message: "Invalid result data." };
+  }
+}
+
+export default function AnalyzeResultPage() {
+  const snapshot = useSyncExternalStore(
+    () => () => {},
+    readResultSnapshot,
+    (): ResultSnapshot => ({ status: "loading" })
+  );
+
+  const error =
+    snapshot.status === "error" ? snapshot.message : null;
+  const data = snapshot.status === "ok" ? snapshot.data : null;
 
   if (error) {
     return (

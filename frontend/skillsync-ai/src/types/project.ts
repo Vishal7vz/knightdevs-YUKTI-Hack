@@ -20,3 +20,8 @@ export interface IProject {
   verificationStatus: VerificationStatus;
   autoVerified?: boolean;
 }
+
+/** Lean Mongoose subdocument for `user.projects` entries */
+export type UserProjectLean = Omit<IProject, "_id"> & {
+  _id?: { toString(): string };
+};

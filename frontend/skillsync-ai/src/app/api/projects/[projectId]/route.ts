@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { getAuthFromRequest, verifyToken } from "@/lib/auth";
 import { User } from "@/models/User";
-import { IProject } from "@/types/project";
+import { IProject, type UserProjectLean } from "@/types/project";
 import { updateProjectVerification } from "@/services/project-verification.service";
 import mongoose from "mongoose";
 
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     const project = (user.projects || []).find(
-      (p: any) => p._id?.toString() === projectId
+      (p: UserProjectLean) => p._id?.toString() === projectId
     );
 
     if (!project) {
@@ -103,14 +103,16 @@ export async function PUT(
     }
 
     const projectIndex = (user.projects || []).findIndex(
-      (p: any) => p._id?.toString() === projectId
+      (p: UserProjectLean) => p._id?.toString() === projectId
     );
 
     if (projectIndex === -1) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const existingProject = user.projects?.[projectIndex] as any;
+    const existingProject = user.projects?.[
+      projectIndex
+    ] as UserProjectLean;
     const updatedProject: Partial<IProject> = {
       title: title !== undefined ? title.trim() : existingProject.title,
       description: description !== undefined ? description?.trim() : existingProject.description,
@@ -135,7 +137,9 @@ export async function PUT(
     );
 
     const updated = await User.findById(payload.userId).select("projects").lean();
-    const savedProject = updated?.projects?.[projectIndex] as any;
+    const savedProject = updated?.projects?.[projectIndex] as
+      | UserProjectLean
+      | undefined;
 
     return NextResponse.json({
       project: {
